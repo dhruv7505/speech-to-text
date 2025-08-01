@@ -28,7 +28,7 @@ app.post('/transcribe', upload.single('audio'), async (req, res) => {
         const API_KEY = process.env.ASSEMBLY_API_KEY;
         const filePath = req.file.path;
 
-        // 1. Upload file to AssemblyAI
+
         const fileData = fs.readFileSync(filePath);
         const uploadRes = await axios.post(
             'https://api.assemblyai.com/v2/upload',
@@ -41,7 +41,7 @@ app.post('/transcribe', upload.single('audio'), async (req, res) => {
             }
         );
 
-        // 2. Request transcription
+
         const transcriptRes = await axios.post(
             'https://api.assemblyai.com/v2/transcript',
             {
@@ -57,7 +57,7 @@ app.post('/transcribe', upload.single('audio'), async (req, res) => {
 
         const transcriptId = transcriptRes.data.id;
 
-        // 3. Polling for status
+
         let completed = false;
         let transcriptText = '';
 
@@ -78,7 +78,7 @@ app.post('/transcribe', upload.single('audio'), async (req, res) => {
             }
         }
 
-        fs.unlinkSync(filePath); // Cleanup uploaded file
+        fs.unlinkSync(filePath);
 
         return res.json({ text: transcriptText });
     } catch (error) {

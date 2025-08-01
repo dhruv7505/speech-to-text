@@ -11,7 +11,7 @@ function Home() {
 
     const mediaRecorderRef = useRef(null);
     const recordedChunksRef = useRef([]);
-    const streamRef = useRef(null); // ✅ new ref for the stream
+    const streamRef = useRef(null);
 
     const handleCopy = (targetText) => {
         if (targetText.trim()) {
@@ -28,7 +28,7 @@ function Home() {
 
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            streamRef.current = stream; // ✅ store the stream
+            streamRef.current = stream;
 
             const mediaRecorder = new MediaRecorder(stream);
             mediaRecorderRef.current = mediaRecorder;
@@ -62,7 +62,7 @@ function Home() {
             mediaRecorderRef.current.stop();
             setIsRecording(false);
 
-            // ✅ stop the mic
+
             if (streamRef.current) {
                 streamRef.current.getTracks().forEach((track) => track.stop());
                 streamRef.current = null;
@@ -126,7 +126,7 @@ function Home() {
             </div>
 
             <div className="flex flex-col md:flex-row gap-6 max-w-6xl mx-auto">
-                {/* Live Mic Section */}
+
                 <div className="flex-1 bg-white rounded-xl shadow-md p-6 border border-gray-200">
                     <h3 className="font-semibold text-xl mb-4 text-gray-800">🎙️ Live Speech</h3>
                     <p className="text-gray-700 h-40 overflow-y-auto whitespace-pre-wrap border p-3 rounded-md bg-gray-50">
@@ -164,7 +164,7 @@ function Home() {
                     </div>
                 </div>
 
-                {/* Upload Section */}
+
                 <div className="flex-1 bg-white rounded-xl shadow-md p-6 border border-gray-200">
                     <h3 className="font-semibold text-xl mb-4 text-gray-800">📁 Upload Audio</h3>
                     <input
