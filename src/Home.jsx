@@ -3,11 +3,30 @@ import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 
 function Home() {
+    const [history, setHistory] = useState([]);
+
     const [audioFile, setAudioFile] = useState(null);
     const [audioTranscript, setAudioTranscript] = useState("");
     const [liveTranscript, setLiveTranscript] = useState("");
     const [loading, setLoading] = useState(false);
     const [isRecording, setIsRecording] = useState(false);
+    useEffect(() => {
+        const fetchHistory = async () => {
+            try {
+                const res = await axios.get("https://speech-to-text-inov.onrender.com/api/history", {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                });
+                setHistory(res.data);
+            } catch (err) {
+                console.error("Error fetching history:", err);
+            }
+        };
+
+        fetchHistory();
+    }, []);
+
 
     const mediaRecorderRef = useRef(null);
     const recordedChunksRef = useRef([]);
@@ -89,6 +108,29 @@ function Home() {
             });
 
             setAudioTranscript(res.data.text);
+            // Save to backend
+            try {
+                await axios.post("https://speech-to-text-inov.onrender.com/api/history", {
+                    type: "Upload",
+                    text: res.data.text,
+                }, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                });
+            } catch (err) {
+                console.error("Failed to save upload history:", err);
+            }
+
+            setHistory((prev) => [
+                ...prev,
+                {
+                    type: "Upload",
+                    text: res.data.text,
+                    time: new Date().toLocaleString(),
+                },
+            ]);
+
         } catch (err) {
             console.error(err);
             alert("Something went wrong during transcription.");
@@ -110,6 +152,29 @@ function Home() {
             });
 
             setLiveTranscript(res.data.text);
+            // Save to backend
+            try {
+                await axios.post("https://speech-to-text-inov.onrender.com/api/history", {
+                    type: "Live",
+                    text: res.data.text,
+                }, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                });
+            } catch (err) {
+                console.error("Failed to save live history:", err);
+            }
+
+            setHistory((prev) => [
+                ...prev,
+                {
+                    type: "Live",
+                    text: res.data.text,
+                    time: new Date().toLocaleString(),
+                },
+            ]);
+
         } catch (err) {
             console.error(err);
             alert("Error transcribing recorded audio.");
@@ -199,7 +264,26 @@ function Home() {
                     )}
                 </div>
             </div>
+            <div className="max-w-6xl mx-auto mt-8 bg-white p-6 rounded-xl shadow-md border">
+                <h3 className="font-semibold text-xl mb-4 text-gray-800">📜 Transcription History</h3>
+                {history.length === 0 ? (
+                    <p className="text-gray-600">No transcriptions yet.</p>
+                ) : (
+                    <ul className="space-y-4">
+                        {history.map((item, idx) => (
+                            <li key={idx} className="border p-3 rounded-md bg-gray-50">
+                                <div className="text-sm text-gray-500 mb-1">
+                                    <span className="font-medium">{item.type}</span> • {new Date(item.timestamp).toLocaleString()}
+                                </div>
+                                <div className="text-gray-800 whitespace-pre-wrap">{item.text}</div>
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </div>
+
         </div>
+
     );
 }
 

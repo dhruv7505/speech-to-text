@@ -6,6 +6,8 @@ import cors from "cors";
 import fs from 'fs';
 import authRoutes from "./routes/Auth.js";
 import multer from "multer";
+import { verifyToken } from "./Middleware/middleware.js";
+import historyRoutes from "./routes/history.js"
 
 dotenv.config();
 const app = express();
@@ -14,6 +16,7 @@ app.use(express.json());
 
 // Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/history", historyRoutes);
 const upload = multer({ dest: 'uploads/' });
 const PORT = process.env.PORT || 5000;
 
